@@ -2053,18 +2053,19 @@
           camYw = 0
         }
 
-        /*
         bgofx = c.width * (Yw/Math.PI/2)
-        if(bgofx > 0) x_.drawImage(bg,bgofx-c.width,0,c.width,c.height)
-        x_.drawImage(bg,bgofx,0,c.width,c.height)
-        if(bgofx < 0) x_.drawImage(bg,bgofx+c.width,0,c.width,c.height)
+        if(!showRender && (showOutput || showPreview)){
+          //if(bgofx > 0) x_.drawImage(bg,bgofx-c.width,0,c.width,c.height)
+          x_.drawImage(bg,bgofx,0,c.width,c.height)
+          //if(bgofx < 0) x_.drawImage(bg,bgofx+c.width,0,c.width,c.height)
+        }
 
-
-        if(bgofx > 0) octx.drawImage(bg,bgofx-output.width,0,output.width,output.height)
+        //if(bgofx > 0) octx.drawImage(bg,bgofx-output.width,0,output.width,output.height)
         octx.drawImage(bg,bgofx,0,output.width,output.height)
-        if(bgofx < 0) octx.drawImage(bg,bgofx+output.width,0,output.width,output.height)
+        //if(bgofx < 0) octx.drawImage(bg,bgofx+output.width,0,output.width,output.height)
         
         
+        /*
         lso = 1//.5+S(t*3)*2
         baseShp = []
         subDividedCube(cubeLs + lso, 0, 0).map(v=>{
