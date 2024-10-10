@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
   <head>
     <title>HDRI explorer [video|image]</title>
@@ -1835,7 +1834,7 @@
           subDividedCube         = (size, subs, sphereize = 0) => subbed(subs, size, sphereize, Cube(size))
           subDividedDodecahedron = (size, subs, sphereize = 0) => subbed(subs, size, sphereize, Dodecahedron(size))
 
-          subV = (v, subres = 20) => {
+          subV = (v, subres = 10) => {
             if(!showOutput && !showPreview) subres = 1
             x('beginPath')
             v.map((q, j) => {
@@ -2054,7 +2053,7 @@
         
         lso = 1//.5+S(t*3)*2
         baseShp = []
-        subDividedCube(cubeLs + lso, 1, 0).map(v=>{
+        subDividedCube(cubeLs + lso, 0, 0).map(v=>{
           a = []
           ax = ay = az = ct = 0
           v.map(q=>{
@@ -2111,8 +2110,8 @@
                 q[1] += ty
                 q[2] += tz
                 return q
-              }), 3)
-                col1 = '#4808'
+              }), 2)
+                col1 = ''
               if(idx%2){
                 col2 = '#f002'
               }else{
@@ -2280,7 +2279,7 @@
               Y = ay2
               Z = az2 + C(p2) * trackWidth
               a = [...a, [X,Y,Z]]
-              subV(a, 3)
+              subV(a, 2)
               col1 = `hsla(${t*50},99%,100%,${.85})`
               col2 = ''//`hsla(${t*50+30},99%,100%,${1/3})`
               stroke(col1, col2, 6, true, alpha)
@@ -2372,13 +2371,13 @@
               loop = loop[1].split('&')[0]
               loop = loop == 'true'
             }
-            playbackspeed = 1//location.href.split('playbackspeed=')
+            playbackspeed = location.href.split('playbackspeed=')
             if(playbackspeed.length > 1){
-              playbackspeed = 1//playbackspeed[1].split('&')[0]
+              playbackspeed = playbackspeed[1].split('&')[0]
             }else{
               playbackspeed = 1
             }
-            img.playbackRate = 1//img.defaultPlaybackRate = +playbackspeed
+            img.playbackRate = img.defaultPlaybackRate = +playbackspeed
             autoplay = location.href.split('autoplay=')
             await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
             if(autoplay.length > 1){
@@ -2399,13 +2398,13 @@
             loop = loop[1].split('&')[0]
             loop = loop == 'true'
           }
-          playbackspeed = 1//location.href.split('playbackspeed=')
+          playbackspeed = location.href.split('playbackspeed=')
           if(playbackspeed.length > 1){
-            playbackspeed = 1//playbackspeed[1].split('&')[0]
+            playbackspeed = playbackspeed[1].split('&')[0]
           }else{
             playbackspeed = 1
           }
-          img.playbackRate = 1//img.defaultPlaybackRate = +playbackspeed
+          img.playbackRate = img.defaultPlaybackRate = +playbackspeed
           autoplay = location.href.split('autoplay=')
           await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
           if(autoplay.length > 1){
