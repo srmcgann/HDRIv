@@ -179,10 +179,28 @@
       outputAspectRatio = 16/9
       output = document.createElement('canvas')
       octx = output.getContext('2d')
-      output.width = buffer.width
+      output.width = c.width
       output.height = output.width / outputAspectRatio
-      showOutput = true
-      showPreview = false
+      showOutput = true    // HDRI view, for recording 
+      showRender = false   // actual pipe to environment, for render eval etc
+      showPreview = false // thumbnail in upper right 
+      // (only visible in default or HDRI output, not render)
+
+      if(showRender){
+        outputAspectRatio = 2
+        showOutput = true
+        showPreview = false
+        c.style.display = 'none'
+      }else{
+        //showPreview = true
+        //showOutput = false
+        setTimeout(()=>{
+          c.style.display = 'block'
+          c.style.borderRadius = showOutput ? '0' : '10px'
+          c.style.border = showOutput ? 'none' : '3px solid #fff3'
+          c.style.margin = showOutput ? 0 : 10
+        }, 0)
+      }
 
       // tempBuffer, needed for optional preview [P]
       tempBuffer = document.createElement('canvas')
@@ -190,17 +208,11 @@
       tempBuffer.height = c.height
       tbctx = tempBuffer.getContext('2d')
 
-      /*
-      output.style.position = 'absolute'
-      output.style.border = '1px solid #40f'
-      output.style.backgroundColor = '#fff'
-      document.body.appendChild(output)
-      */
-
       C = Math.cos
       S = Math.sin
       t = 0
       T = Math.tan
+
 
       rsz = window.onresize = () =>{
         let b = document.body
@@ -2389,7 +2401,8 @@
              await fetch('https://srmcgann.github.io/skyboxes/HDRI/2.jpg').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
           }
         }else{
-          url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
+        
+          /*url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
 
           resType = 'video'
           img = document.createElement('video')
@@ -2410,6 +2423,10 @@
           if(autoplay.length > 1){
             autoplay = autoplay[1].split('&')[0]
           }
+          */
+         resType = 'image'
+         img = new Image()
+         await fetch('https://srmcgann.github.io/skyboxes2/HDRI/stars.jpg').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
         }
 
 
