@@ -2135,7 +2135,7 @@ $file = <<<'FILE'
                 q[1] += ty
                 q[2] += tz
                 return q
-              }), 8)
+              }), 3)
                 col1 = '#4808'
               if(idx%2){
                 col2 = '#f002'
@@ -2304,7 +2304,7 @@ $file = <<<'FILE'
               Y = ay2
               Z = az2 + C(p2) * trackWidth
               a = [...a, [X,Y,Z]]
-              subV(a, 10)
+              subV(a, 3)
               col1 = `hsla(${t*50},99%,100%,${.85})`
               col2 = ''//`hsla(${t*50+30},99%,100%,${1/3})`
               stroke(col1, col2, 6, true, alpha)
