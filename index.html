@@ -167,15 +167,15 @@
       c = document.createElement('canvas')
       c.tabIndex = 0
       x_ = c.getContext('2d')
-      c.width = 1920/2
-      c.height = 1080/2
+      c.width = 1920
+      c.height = 1080
 
       buffer = document.createElement('canvas')
       bctx = buffer.getContext('2d')
       buffer.width = c.width
       buffer.height = c.height
       camMode = 'HDRI'
-      HDRIwidth = 1920/2
+      HDRIwidth = 1920
 
       outputAspectRatio = 16/9
       output = document.createElement('canvas')
@@ -257,7 +257,7 @@
           }
         }
       })
-      for(let i=15;i--;) setTimeout(()=>{rsz2()}, i*100)
+      for(let i=15;i--;) setTimeout(()=>{rsz2()}, i*500)
 
       async function Draw(){
         if(!t){
