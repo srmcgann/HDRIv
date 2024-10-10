@@ -1,3 +1,7 @@
+<?php
+@mkdir('../HDRIv');
+
+$file = <<<'FILE'
 <!DOCTYPE html>
 <html>
   <head>
@@ -163,17 +167,6 @@
         }
 
       `
-        
-      scriptblock = document.createElement('script')
-      scriptblock.setAttribute('type', 'importmap')
-      scriptblock.innerHTML = importMap
-      document.body.appendChild(scriptblock)
-
-      scriptblock = document.createElement('script')
-      scriptblock.setAttribute('type', 'module')
-      scriptblock.innerHTML = script
-      document.body.appendChild(scriptblock)
-
           
       c = document.createElement('canvas')
       c.tabIndex = 0
@@ -233,11 +226,11 @@
           c.style.height = `${(n=b.clientHeight) - margin*2}px`
           c.style.width = `${n/d - margin*2}px`
         }
-        //output.style.width = c.width/4 + 'px'
-        //output.style.height = (output.clientWidth/2) + 'px'
-        //rect = c.getBoundingClientRect()
-        //output.style.left = (rect.left + c.clientWidth - 10 - output.clientWidth) + 'px'
-        //output.style.top = (rect.top + 10) + 'px'
+        output.style.width = c.width/4 + 'px'
+        output.style.height = (output.clientWidth/2) + 'px'
+        rect = c.getBoundingClientRect()
+        output.style.left = (rect.left + c.clientWidth - 10 - output.clientWidth) + 'px'
+        output.style.top = (rect.top + 10) + 'px'
       }
       rsz()
 
@@ -298,49 +291,94 @@
           if(location.href.split('res=').length>1){
             cscl = +location.href.split('res=')[1].split('&')[0]
           }else{
-            cscl = 3
+            cscl = 2
           }
 
           c.width = 1920/	cscl
           c.height = 1080 / cscl
 
-          url = location.href.split('url=')
-          if(url.length > 1){
-            url = url[1].split('&')[0]
-            if(url.toLowerCase().indexOf('.mp4') != -1 ||
-              url.toLowerCase().indexOf('.webm') != -1){
-              resType = 'video'
-              img = document.createElement('video')
-              loop = location.href.split('loop=')
-              if(loop.length > 1){
-                loop = loop[1].split('&')[0]
-                loop = loop == 'true'
+          keys = Array(256).fill(false)
+
+          accel = .03
+          maxSpeed = .5
+          doKeys = () => {
+            keys.map((v, keyCode) => {
+              if(v){
+                switch(keyCode){
+                  case 37:
+                  
+                  break
+                  case 38:
+                    dSpeed += accel
+                    dSpeed = Math.min(maxSpeed, Math.max(-maxSpeed, dSpeed))
+                  break
+                  case 39:
+                  break
+                  case 40:
+                    dSpeed -= accel
+                    dSpeed = Math.min(maxSpeed, Math.max(-maxSpeed, dSpeed))
+                  break
+                }
               }
-              playbackspeed = location.href.split('playbackspeed=')
-              if(playbackspeed.length > 1){
-                playbackspeed = playbackspeed[1].split('&')[0]
-              }else{
-                playbackspeed = 1
+            })
+          }
+
+          keyTimer = 0
+          keyTimerInterval = .25
+          window.onkeyup = e => {
+            keys[e.keyCode] = false
+          }
+
+          window.onkeydown = e => {
+            keys[e.keyCode] = true
+            if(keyTimer <= t){
+              keyTimer = t + keyTimerInterval
+              if(e.keyCode == 72) {
+                showOutput = !showOutput
+                if(showRender){
+                  if(typeof can != 'undefined') {
+                    outputAspectRatio = 2
+                    showOutput = true
+                    showPreview = false
+                    can.style.display = 'block'
+                    c.style.display = 'none'
+                    rsz2()
+                  }
+                }else{
+                  showPreview = true
+                  if(typeof can != 'undefined') can.style.display = 'none'
+                  c.style.display = 'block'
+                  rsz()
+                }
               }
-              img.playbackRate = img.defaultPlaybackRate = +playbackspeed
-              autoplay = location.href.split('autoplay=')
-              await fetch(url).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
-              if(autoplay.length > 1){
-                autoplay = autoplay[1].split('&')[0]
+              if(e.keyCode == 80) {
+                showPreview = !showPreview
               }
-            }else{
-               resType = 'image'
-               img = new Image()
-               await fetch(url).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
+              if(e.keyCode == 82) {
+                showRender = !showRender
+                if(showRender){
+                  outputAspectRatio = 2
+                  showPreview = false
+                  showOutput = true
+                  can.style.display = 'block'
+                  c.style.display = 'none'
+                }else{
+                  showPreview = true
+                  can.style.display = 'none'
+                  c.style.display = 'block'
+                }
+              }
+              if(e.keyCode == 70) {
+                if(showRender || outputAspectRatio == 16/9){
+                  outputAspectRatio = 2
+                }else{
+                  outputAspectRatio = 16/9
+                }
+                rsz()
+              }
             }
-          }else{
-            resType = 'video'
-            img = document.createElement('vidoeo')
-            await fetch('https://srmcgann.github.io/skyboxes/videos/starfield.mp4').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
           }
           
-          
-              
           
           X     = Y     = Z     = 0
           oX    = oY    = oZ    = 0
@@ -349,10 +387,8 @@
           camposX  = camposY  = camposZ  = 0
           camRl = camPt = camYw = 0
           Rn = Math.random
-          
+
           cls = () => {
-            //x_.width = 1920
-            //x_.height = 1080
             Z = camZ = 1E6
             x_['globalAlpha'] = 1
             x_.fillStyle = showOutput && showPreview ? '#000' : '#000a'
@@ -365,37 +401,34 @@
             octx.lineJoin = 'roud'
             octx.lineCap = 'roud'
           }
-          
+
           x = (func, ...vals) => {
             let p=0, q=0, d, ox, oy, oz, ox1, oy1, oz1, X1, Y1, Z1, X2, Y2, Z2, X3, Y3, Z3, X4, Y4, Z4
             let ox2, oy2, oz2, s, s2, split, onscreen1, onscreen2
-            let hoff = .5
+            let hoff = .5       // horizontal offset of HDRI output, note it wraps
             let invertY = true
             switch(func){
-              
-              // assignments
+
+                // assignments
               case 'strokeStyle'   :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'filleStyle' :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'lineWidth'  :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[1]
                   ox = camX - camposX
                   oy = camY - camposY
                   oz = camZ - camposZ
@@ -407,60 +440,54 @@
                 }else{
                   return [x_[func], octx[func]]
                 }
-              break
+                break
               case 'fillStyle'  :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'globalAlpha':
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals.length > 1 ? vals[1] : vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'font'       :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals.length > 1 ? vals[1] : vals[0]
                   octx[func] = vals.length > 1 ? vals[1] : vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'lineJoin'   :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals[0]
                 }else{
                   return x_[func]
                 }
-              break
+                break
               case 'lineCap'    :
                 if(vals.length){
                   x_[func]   = vals[0]
-                  //bctx[func] = vals[0]
                   octx[func] = vals[0]
                 }else{
                   return x_[func]
                 }
-              break
-              
-              // function calls
+                break
+
+                // function calls
               default:
                 if(vals.length){
                   switch(func){
                     case 'lineTo':
-                      if(Z>0 && (!showOutput || showPreview))    x_[func](...vals)
-                      //if(camZ>0 && !showOutput) bctx[func](vals[2], vals[3])
+                      if(Z>0 && (!showOutput  || showPreview))    x_[func](...vals)
                       if(showOutput || showPreview){
                         ox = camX - camposX
                         oy = camY - camposY
@@ -470,10 +497,9 @@
                         q = invertY ? 1-Math.acos(oy / d) / Math.PI : Math.acos(oy / d) / Math.PI
                         HDRIqueue = [...HDRIqueue, [p * output.width, q * output.height]]
                       }
-                    break
+                      break
                     case 'clearRect':
                       if(Z>0 && (!showOutput || showPreview)) x_[func](vals[0], vals[1],  vals[2],  vals[3])
-                      //if(Z>0 && (!showOutput || showPreview)) bctx[func](vals[4], vals[5],  vals[6],  vals[7])
 
                       if(showOutput || showPreview){
                         ox = camX - camposX
@@ -488,10 +514,9 @@
                         modsize = 1//(1 + Math.abs(.5 - q)*40)/40
                         octx[func](ox1-vals[6]*modsize/2, oy1-vals[7]*modsize/2, vals[6]*modsize, vals[7]*modsize)
                       }
-                    break
+                      break
                     case 'fillRect': case 'strokeRect':
                       if(Z>0 && (!showOutput || showPreview)) x_[func](vals[0], vals[1],  vals[2],  vals[3])
-                      //if(Z>0 && (!showOutput || showPreview)) bctx[func](vals[4], vals[5],  vals[6],  vals[7])
 
                       if(showOutput || showPreview){
                         ox = camX - camposX
@@ -512,10 +537,9 @@
                         if(X1 < 0) octx[func](X1 + output.width, Y1, X2, Y2)
                         if(X1 + X2 > output.width) octx[func](X1 - output.width, Y1, X2, Y2)
                       }
-                    break
+                      break
                     case 'drawImage':
                       if(Z>0 && (!showOutput || showPreview)) x_[func](vals[0], vals[1],  vals[2],  vals[3], vals[4])
-                      //if(Z>0 && (!showOutput || showPreview)) bctx[func](vals[5], vals[6],  vals[7],  vals[8], vlas[9])
 
                       if(showOutput || showPreview){
                         ox = camX - camposX
@@ -538,24 +562,22 @@
                         if(X1 < 0) octx[func](vals[0], X1 + output.width, Y1, X2, Y2)
                         if(X1 + X2 > output.width) octx[func](vals[0], X1 - output.width, Y1, X2, Y2)
                       }
-                    break
+                      break
                     default:
                       if(!showOutput || showPreview) x_[func](...vals)
-                      //bctx[func](...vals)
                       if(showOutput || showPreview) octx[func](...vals)
-                    break
+                      break
                   }
                 }else{
                   switch(func){
                     case 'beginPath':
                       if(!showOutput || showPreview) x_[func]()
-                      //bctx[func]()
                       if(showOutput || showPreview){
                         octx[func]()
                         split = false
                         HDRIqueue = []
                       }
-                    break
+                      break
                     case 'stroke':
                       if(!showOutput || showPreview) x_[func]()
                       if(showOutput || showPreview){
@@ -568,39 +590,42 @@
                             X = HDRIqueue[l2][0] > output.width/2 ? HDRIqueue[l2][0] - output.width : HDRIqueue[l2][0]
                             b = [X, HDRIqueue[l2][1]]
                             if(Math.abs(a_[0] - b[0]) < output.width/2 &&
-                              ((a_[0]<=0 && b[0] >= 0) ||
-                              (a_[0]>=0 && b[0] <= 0))
-                              ){
-                                octx.beginPath()
-                                octx.lineTo(...a_)
-                                octx.lineTo(...b)
-                                octx.stroke()
+                               ((a_[0]<=0 && b[0] >= 0) ||
+                                (a_[0]>=0 && b[0] <= 0)// ||
+                                //(a_[0]<=0 && b[0] <= 0)
+                              )){
+                              octx.beginPath()
+                              octx.lineTo(...a_)
+                              octx.lineTo(...b)
+                              octx.stroke()
                             }
-                            
+
                             l1 = (i+HDRIqueue.length-1) % HDRIqueue.length
                             l2 = (i+HDRIqueue.length) % HDRIqueue.length
-                            X = HDRIqueue[l1][0] < output.width*.75 ? HDRIqueue[l1][0] + output.width : HDRIqueue[l1][0]
+                            X = HDRIqueue[l1][0] < output.width/2 ? HDRIqueue[l1][0] + output.width : HDRIqueue[l1][0]
                             a_ = [X, HDRIqueue[l1][1]]
-                            X = HDRIqueue[l2][0] < output.width*.75 ? HDRIqueue[l2][0] + output.width : HDRIqueue[l2][0]
+                            X = HDRIqueue[l2][0] < output.width/2 ? HDRIqueue[l2][0] + output.width : HDRIqueue[l2][0]
                             b = [X, HDRIqueue[l2][1]]
                             if(Math.abs(a_[0] - b[0]) < output.width/2 &&
-                              ((a_[0] <= output.width && b[0] >= output.width) ||
-                              (a_[0] >= output.width && b[0] <= output.width))
-                              ){
-                                octx.beginPath()
-                                octx.lineTo(...a_)
-                                octx.lineTo(...b)
-                                octx.stroke()
+                               ((a_[0] <= output.width && b[0] >= output.width) ||
+                                (a_[0] >= output.width && b[0] <= output.width)// ||
+                                //(a_[0] >= output.width && b[0] >= output.width)
+                              )){
+                              octx.beginPath()
+                              octx.lineTo(...a_)
+                              octx.lineTo(...b)
+                              octx.stroke()
                             }
                           }
                         })
+                        mt = false
                         octx.beginPath()
                         HDRIqueue.map((v, i) => {
                           l1 = (i+HDRIqueue.length+1) % HDRIqueue.length
                           l2 = (i+HDRIqueue.length) % HDRIqueue.length
                           a = [HDRIqueue[l1][0], HDRIqueue[l1][1]]
                           b = [HDRIqueue[l2][0], HDRIqueue[l2][1]]
-                          if(Math.hypot(a[0] - b[0], a[1] - b[1]) < output.width/6) {
+                          if(Math.hypot(a[0] - b[0], a[1] - b[1]) < output.width/3) {
                             octx.lineTo(a[0], a[1])
                           }else{
                             octx.moveTo(a[0], a[1])
@@ -610,132 +635,89 @@
                         if(!mt) octx.closePath()
                         octx.stroke()
                       }
-                    break
+                      break
                     case 'fill':
                       if(!showOutput || showPreview) x_[func]()
-                      
                       if(showOutput || showPreview){
-                        onscreen1 = false, onscreen2 = false
-                        split = false
                         HDRIqueue.map((v, i) => {
                           if(i){
-                            offscreen1 = false, offscreen2 = false
-                            l1 = i
-                            l2 = i-1
-                            X1 = HDRIqueue[l1][0]
-                            Y1 = HDRIqueue[l1][1]
-                            X2 = HDRIqueue[l2][0]
-                            Y2 = HDRIqueue[l2][1]
-                            if((d=Math.hypot(X2-X1, Y2-Y1))>output.width/2
-                            //&&!(Math.abs(X1-output.width/2)< 500 && Math.abs(X2-output.width/2)< 500)
-                              ) {
-                              Xa = X1 > output.width/2 ? X1 - output.width : X1
-                              Xb = X1 < output.width/2 ? X1 + output.width : X1
-                              Xc = X2 > output.width/2 ? X2 - output.width : X2
-                              Xd = X2 < output.width/2 ? X2 + output.width : X2
-                              if(Xa >= 0 && Xa<=output.width) onscreen1 = true
-                              if(Xb >= 0 && Xb<=output.width) onscreen2 = true
-                              if(Xc >= 0 && Xc<=output.width) onscreen1 = true
-                              if(Xd >= 0 && Xd<=output.width) onscreen2 = true
-                              if(Xa < 0 || Xa>output.width) offscreen1 = true
-                              if(Xb < 0 || Xb>output.width) offscreen2 = true
-                              if(Xc < 0 || Xc>output.width) offscreen1 = true
-                              if(Xd < 0 || Xd>output.width) offscreen2 = true
-                              split = true
+                            l1 = (i+HDRIqueue.length-1) % HDRIqueue.length
+                            l2 = (i+HDRIqueue.length) % HDRIqueue.length
+                            X = HDRIqueue[l1][0] > output.width/2 ? HDRIqueue[l1][0] - output.width : HDRIqueue[l1][0]
+                            a_ = [X, HDRIqueue[l1][1]]
+                            X = HDRIqueue[l2][0] > output.width/2 ? HDRIqueue[l2][0] - output.width : HDRIqueue[l2][0]
+                            b = [X, HDRIqueue[l2][1]]
+                            if(Math.abs(a_[0] - b[0]) < output.width/2 &&
+                               ((a_[0]<=0 && b[0] >= 0) ||
+                                (a_[0]>=0 && b[0] <= 0))
+                              ){
+                              octx.beginPath()
+                              octx.lineTo(...a_)
+                              octx.lineTo(...b)
+                              octx.fill()
+                            }
+
+                            l1 = (i+HDRIqueue.length-1) % HDRIqueue.length
+                            l2 = (i+HDRIqueue.length) % HDRIqueue.length
+                            X = HDRIqueue[l1][0] < output.width*.75 ? HDRIqueue[l1][0] + output.width : HDRIqueue[l1][0]
+                            a_ = [X, HDRIqueue[l1][1]]
+                            X = HDRIqueue[l2][0] < output.width*.75 ? HDRIqueue[l2][0] + output.width : HDRIqueue[l2][0]
+                            b = [X, HDRIqueue[l2][1]]
+                            if(Math.abs(a_[0] - b[0]) < output.width*2 &&
+                               ((a_[0] <= output.width && b[0] >= output.width) ||
+                                (a_[0] >= output.width && b[0] <= output.width))
+                              ){
+                              octx.beginPath()
+                              octx.lineTo(...a_)
+                              octx.lineTo(...b)
+                              octx.fill()
                             }
                           }
                         })
-                        
-                        if(split){
-                          if(onscreen1){
-                            octx.beginPath()
-                            mt = false
-                            HDRIqueue.map((v, i) => {
-                              l1 = (i+HDRIqueue.length+1) % HDRIqueue.length
-                              l2 = (i+HDRIqueue.length) % HDRIqueue.length
-
-                              X = HDRIqueue[l1][0] > output.width/2 ? HDRIqueue[l1][0] - output.width : HDRIqueue[l1][0]
-                              a_ = [X, HDRIqueue[l1][1]]
-                              X = HDRIqueue[l2][0] > output.width/2 ? HDRIqueue[l2][0] - output.width : HDRIqueue[l2][0]
-                              b = [X, HDRIqueue[l2][1]]
-                              if(Math.hypot(a_[0] - b[0], a_[1] - b[1]) < output.width/6) {
-                                octx.lineTo(a_[0], a_[1])
-                              }else{
-                                octx.moveTo(a_[0], a_[1])
-                                mt = true
-                              }
-                            })
-                            //if(!mt) octx.closePath()
-                            octx.fill()
+                        mt = false
+                        octx.beginPath()
+                        HDRIqueue.map((v, i) => {
+                          l1 = (i+HDRIqueue.length+1) % HDRIqueue.length
+                          l2 = (i+HDRIqueue.length) % HDRIqueue.length
+                          a = [HDRIqueue[l1][0], HDRIqueue[l1][1]]
+                          b = [HDRIqueue[l2][0], HDRIqueue[l2][1]]
+                          if(Math.hypot(a[0] - b[0], a[1] - b[1]) < output.width/2) {
+                            octx.lineTo(a[0], a[1])
+                          }else{
+                            octx.moveTo(a[0], a[1])
+                            mt = true
                           }
-                          if(onscreen2){
-                            octx.beginPath()
-                            mt = false
-                            HDRIqueue.map((v, i) => {
-                              l1 = (i+HDRIqueue.length+1) % HDRIqueue.length
-                              l2 = (i+HDRIqueue.length) % HDRIqueue.length
-
-                              X = HDRIqueue[l1][0] < output.width/2 ? HDRIqueue[l1][0] + output.width : HDRIqueue[l1][0]
-                              a_ = [X, HDRIqueue[l1][1]]
-                              X = HDRIqueue[l2][0] < output.width/2 ? HDRIqueue[l2][0] + output.width : HDRIqueue[l2][0]
-                              b = [X, HDRIqueue[l2][1]]
-                              if(Math.hypot(a_[0] - b[0], a_[1] - b[1]) < output.width/6) {
-                                octx.lineTo(b[0], b[1])
-                              }else{
-                                octx.moveTo(a_[0], a_[1])
-                                mt = true
-                              }
-                            })
-                            //if(!mt) octx.closePath()
-                            octx.fill()
-                          }
-                        }else{
-                          octx.beginPath()
-                          mt = false
-                          HDRIqueue.map((v, i) => {
-                            l1 = (i+HDRIqueue.length+1) % HDRIqueue.length
-                            l2 = (i+HDRIqueue.length) % HDRIqueue.length
-                            a = [HDRIqueue[l1][0], HDRIqueue[l1][1]]
-                            b = [HDRIqueue[l2][0], HDRIqueue[l2][1]]
-                            if(Math.hypot(a[0] - b[0], a[1] - b[1]) < output.width/6) {
-                              octx.lineTo(a[0], a[1])
-                            }else{
-                              octx.moveTo(a[0], a[1])
-                              mt = true
-                            }
-                          })
-                          //if(!mt) octx.closePath()
-                          octx.fill()
-                        }
+                        })
+                        //if(!mt) octx.closePath()
+                        octx.fill()
                       }
-                    break
+                      break
                     default:
                       if(!showOutput || showPreview) x_[func]()
-                      //bctx[func]()
                       if(showOutput || showPreview) octx[func]()
-                    break
+                      break
                   }
                 }
-              break
+                break
             }
             return [p, q]
           }
-          
+
           R = (Rl,Pt,Yw,m) => {
             M = Math
             A = M.atan2
             H = M.hypot
-            
+
             let X0_ = X
             let Y0_ = Y
             let Z0_ = Z
             let p, d
-            
+
             // MAIN
             if(m){
-              //X -= oX
-              //Y -= oY
-              //Z -= oZ
+              X -= oX
+              Y -= oY
+              Z -= oZ
             }
             X = S(p=A(X,Y)+Rl) * (d=H(X,Y))
             Y = C(p) * d
@@ -744,22 +726,22 @@
             Y = S(p=A(Y,Z)+Pt) * (d=H(Y,Z))
             Z = C(p)*d
             if(m){
-              X += oX
-              Y += oY
-              Z += oZ
+              //X += oX
+              //Y += oY
+              //Z += oZ
             }
             let X1_ = X
             let Y1_ = Y
             let Z1_ = Z
-            
+
             // CAM
             X = X0_
             Y = Y0_
             Z = Z0_
             if(m){
-              //X -= camposX
-              //Y -= camposY
-              //Z -= camposZ
+              X -= camposX
+              Y -= camposY
+              Z -= camposZ
             }
             let mod = Rl == 0 && Pt == 0 && Yw == 0 ? 0 : 1
             X = S(p=A(X,Y)+camRl*mod) * (d=H(X,Y))
@@ -769,9 +751,9 @@
             Y = S(p=A(Y,Z)+camPt*mod) * (d=H(Y,Z))
             Z = C(p)*d
             if(m){
-              X += camposX
-              Y += camposY
-              Z += camposZ
+              //X += camposX
+              //Y += camposY
+              //Z += camposZ
             }
             if(camMode == 'HDRI'){
               camD = H(X, Y, Z)
@@ -783,7 +765,7 @@
             camY = Y
             camZ = Z
             //camD += Z
-            
+
             X    = X1_
             Y    = Y1_
             Z    = Z1_
@@ -811,7 +793,7 @@
             while(hue>=360) hue-=360;
             return [hue, sat, val]
           }
-          
+
           R3=(Rl,Pt,Yw,m=false)=>{
             M=Math
             A=M.atan2
@@ -831,7 +813,7 @@
 
           Q = () => [c.width/2+X/(Z+.01)*700, c.height/2+Y/(Z+.01)*700,
                      output.width/2+camX/(camZ+.01)*700, output.height/2+camY/(camZ+.01)*700]
-                     
+
           I=(A,B,M,D,E,F,G,H)=>(K=((G-E)*(B-F)-(H-F)*(A-E))/(J=(H-F)*(M-A)-(G-E)*(D-B)))>=0&&K<=1&&(L=((M-A)*(B-F)-(D-B)*(A-E))/J)>=0&&L<=1?[A+K*(M-A),B+K*(D-B)]:0
             
           spawnTunnel = (
@@ -1118,26 +1100,26 @@
           }
 
           burst = new Image()
-          burst.src = "https://srmcgann.github.io/temp/burst.png"
+          burst.src = `https://srmcgann.github.io/temp/burst.png`
 
           //burst1 = new Image()
-          //burst1.src = "https://srmcgann.github.io/temp/burst1.png"
+          //burst1.src = `https://srmcgann.github.io/temp/burst1.png`
           burst2 = new Image()
-          burst2.src = "https://srmcgann.github.io/temp/burst2.png"
+          burst2.src = `https://srmcgann.github.io/temp/burst2.png`
           burst3 = new Image()
-          burst3.src = "https://srmcgann.github.io/temp/burst3.png"
+          burst3.src = `https://srmcgann.github.io/temp/burst3.png`
           burst4 = new Image()
-          burst4.src = "https://srmcgann.github.io/temp/burst4.png"
+          burst4.src = `https://srmcgann.github.io/temp/burst4.png`
           burstz = [ burst, burst2, burst3, burst4]
           
           sphere1 = new Image()
-          sphere1.src = 'https://srmcgann.github.io/temp13/sphere_colorful_1.png'
+          sphere1.src = `https://srmcgann.github.io/temp13/sphere_colorful_1.png`
           sphere2 = new Image()
-          sphere2.src = 'https://srmcgann.github.io/temp13/sphere_colorful_2.png'
+          sphere2.src = `https://srmcgann.github.io/temp13/sphere_colorful_2.png`
           sphere3 = new Image()
-          sphere3.src = 'https://srmcgann.github.io/temp13/sphere_colorful_3.png'
+          sphere3.src = `https://srmcgann.github.io/temp13/sphere_colorful_3.png`
           sphere4 = new Image()
-          sphere4.src = 'https://srmcgann.github.io/temp13/sphere_colorful_4.png'
+          sphere4.src = `https://srmcgann.github.io/temp13/sphere_colorful_4.png`
           spherez = [ sphere1, sphere2, sphere3, sphere4 ]
 
           starsLoaded = false, starImgs = [{loaded: false}]
@@ -1980,65 +1962,388 @@
           //bg = new Image()
           //url = 'https://srmcgann.github.io/skyboxes/HDRI/28.jpg'
           //await fetch(url).then(res=>res.blob()).then(data=>bg.src = URL.createObjectURL(data))
+          console.log(img)
           bg = img
           
+          iTrackv = 3
+          trackTurnVel = .33
+          trackTurnDrag = 1.1
+          trackvThetaVel = 1.5
+          vThetaDrag = 1.05
+          trackDrag = 1.05
+          floor = 4
+          track = [[0,floor,0,  0,floor,iTrackv, 0, 0, 1e6]]
+          layTrack = (reverse = false) => {
+            if(reverse){
+              l = 0
+              X1 = track[l][0]
+              Y1 = track[l][1]
+              Z1 = track[l][2]
+              X2 = track[l][3]
+              Y2 = track[l][4]
+              Z2 = track[l][5]
+              theta = track[l][6] /= trackTurnDrag
+              theta += (Rn() - .5) * trackTurnVel
+              vtheta = track[l][7] /= vThetaDrag
+              vtheta += (Rn() - .5) * trackvThetaVel
+              p = Math.atan2(X2-X1, Z2-Z1) - theta
+              X = X1 - S(p) * iTrackv
+              Y = Y1 - vtheta
+              Z = Z1 - C(p) * iTrackv
+              track = [[X, Y, Z,  X1, Y1, Z1, theta, vtheta, track[l][8]+1], ...track]
+            }else{
+              l = track.length - 1
+              X1 = track[l][0]
+              Y1 = track[l][1]
+              Z1 = track[l][2]
+              X2 = track[l][3]
+              Y2 = track[l][4]
+              Z2 = track[l][5]
+              theta = track[l][6] /= trackTurnDrag
+              theta += (Rn() - .5) * trackTurnVel
+              vtheta = track[l][7] /= vThetaDrag
+              vtheta += (Rn() - .5) * trackvThetaVel
+              p = Math.atan2(X2-X1, Z2-Z1) + theta
+              X = X2 + S(p) * iTrackv
+              Y = Y2 + vtheta
+              Z = Z2 + C(p) * iTrackv
+              track = [...track, [X2, Y2, Z2,  X, Y, Z, theta, vtheta, track[l][8]-1]]
+            }
+          }
+          tracklen = 150
+          for(m=tracklen; m--;) layTrack()
+            
+          bounding = subDividedCube(5,0,0).map(v=>{
+            v.map(q=>{
+              q[1] *= .1
+            })
+            return v
+          })
+          
+          dSpeed = .05
+          dPos = ywv = ptv = 0
+          ofz = 8
+          curSeg = track.length/2|0
+          
+          cl = 3
+          rw = 3
+          br = 3
+          sp = (cubeLs = 4) * 4
+          env = []
+          Array(cl*rw*br).fill().map((v, i) => {
+            X = ((i%cl)-cl/2 + .5)*sp
+            Y = (((i/cl|0)%rw)-rw/2 + .5)*sp
+            Z = ((i/cl/rw|0)-br/2 + .5)*sp
+            if(Rn()<1) env = [...env, [X,Y,Z]]
+          })
         }
 
         cls()
-        x('globalAlpha', 1)
-        x_.drawImage(bg,0,0,c.width,c.height)
-        octx.drawImage(bg,0,0,output.width,output.height)
+        doKeys()
 
-        oX  = 0
-        oY  = 0
-        oZ  = 16
-        Rl  = 0
-        Pt  = 0
-        Yw  = t
+        //oX  = 0
+        //oY  = 0
+        //oZ  = 5
+        //Rl  = 0
+        //Pt  = -Math.PI/8
+        //Yw  = 0
 
-        camposX = 0
-        camposY = 0
-        camposZ = 0
-        camRl = 0
-        camPt = 0//Math.PI/2
-        camYw = t
-        
-        polys = []
-        res = 10
-        for(m=10; m--;){
-          ls = (m + 1)*2
-          a = []
-          sd = 4
-          for(i=0; i<sd; i++){
-            X1 = S(p=Math.PI*2/sd*i+Math.PI/sd) * ls
-            Y1 = 5
-            Z1 = C(p) * ls
-            if(!i)a = [...a, [X1,Y1,Z1]]
-            X2 = S(p=Math.PI*2/sd*(i+1)+Math.PI/sd) * ls
-            Y2 = 5
-            Z2 = C(p) * ls
-            for(k = 0; k<res; k++){
-              X = X1 + (X2-X1) / res * k
-              Y = Y1 + (Y2-Y1) / res * k
-              Z = Z1 + (Z2-Z1) / res * k
-              a = [...a, [X,Y,Z]]
-            }
-          }
-          polys = [...polys, a]
+        lockViews = true
+
+        if(lockViews){
+          camposX = oX
+          camposY = oY
+          camposZ = oZ
+          camRl = Rl
+          camPt = Pt
+          camYw = Yw
+        }else{
+          camposX = 0
+          camposY = 0
+          camposZ = 0
+          camRl = 0
+          camPt = 0
+          camYw = 0
         }
 
-        polys.map(v=>{
-          subV(v, 4)
-          
-          col1 = '#f008'
-          col2 = ''
-          Z = 10
-          stroke(col1, col2, 1, false, 1, true)
-        })
+        bgofx = c.width * (Yw/Math.PI/2)
+        if(bgofx > 0) x_.drawImage(bg,bgofx-c.width,0,c.width,c.height)
+        x_.drawImage(bg,bgofx,0,c.width,c.height)
+        if(bgofx < 0) x_.drawImage(bg,bgofx+c.width,0,c.width,c.height)
 
-        //x('globalAlpha', 1)
-        //x_.drawImage(bg,0,0,c.width,c.height)
-        //octx.drawImage(bg,0,0,output.width,output.height)
+
+        if(bgofx > 0) octx.drawImage(bg,bgofx-output.width,0,output.width,output.height)
+        octx.drawImage(bg,bgofx,0,output.width,output.height)
+        if(bgofx < 0) octx.drawImage(bg,bgofx+output.width,0,output.width,output.height)
+        
+        
+        lso = 1//.5+S(t*3)*2
+        baseShp = []
+        subDividedCube(cubeLs + lso, 1, 0).map(v=>{
+          a = []
+          ax = ay = az = ct = 0
+          v.map(q=>{
+            X = q[0] *= 1.5
+            Y = q[1] *= .1
+            Z = q[2] *= 1.5
+            //R(t*.5,t*.2,0)
+            ax += q[0] = X
+            ay += q[1] = Y
+            az += q[2] = Z
+            a = [...a, [X,Y,Z]]
+            ct++
+          })
+          ax /= ct
+          ay /= ct
+          az /= ct
+          if((ay)>.2) baseShp = [...baseShp, a]
+        })
+        
+        //x('fillStyle', `hsla(${t*200},99%,0%,.5)`)
+        x('fillStyle', `#0002`)
+        x_.fillRect(0,0,c.width,c.height)
+        octx.fillRect(0,0,output.width,output.height)
+        
+        if(0) bounding.map(v => {
+          x('beginPath')
+          v.map(q => {
+            X = q[0]
+            Y = q[1]
+            Z = q[2]
+            R(Rl,Pt,Yw,1)
+            Z += ofz
+            x('lineTo', ...Q())
+          })
+          col1 = '#40f2'
+          col2 = '#40f1'
+          stroke(col1, col2, 1, true)
+        })
+        
+        env.map((env, idx) => {
+          let tx = env[0]
+          let ty = env[1]
+          let tz = env[2]
+          while(oX - tx > cl*sp/2) tx+=cl*sp
+          while(oX - tx < -cl*sp/2) tx-=cl*sp
+          while(oY - ty > rw*sp/2) ty+=rw*sp
+          while(oY - ty < -rw*sp/2) ty-=rw*sp
+          while(oZ - tz > br*sp/2) tz+=br*sp
+          while(oZ - tz < -br*sp/2) tz-=br*sp
+          if(alpha = 1 / (1+(1+Math.hypot(a=oX-tx, b=oY-ty, e=oZ-tz))**10/5e12)){
+            baseShp.map(v=>{
+              subV(structuredClone(v).map(q => {
+                q[0] += tx
+                q[1] += ty
+                q[2] += tz
+                return q
+              }), 8)
+                col1 = '#4808'
+              if(idx%2){
+                col2 = '#f002'
+              }else{
+                col2 = '#ff02'
+              }
+              stroke(col1, col2, .5, false, alpha)
+            })
+          }
+        })
+        
+        x('globalAlpha', 1)
+        
+        dSpeed /= trackDrag
+        //dSpeed = .1
+        dPos += dSpeed
+        
+        while(dPos >= 1){
+          curSeg ++
+          if(curSeg>tracklen/2){
+            track.shift()
+            layTrack()
+            curSeg --
+          }
+          dPos   -=1
+        }
+
+        while(dPos < 0){
+          if(curSeg<=tracklen/2){
+            track.pop()
+            layTrack(reverse = true)
+          }
+          dPos   +=1
+        }
+
+        if(dSpeed >=0 ){
+          X1 = track[curSeg][0]
+          Y1 = track[curSeg][1]
+          Z1 = track[curSeg][2]
+          X2 = track[curSeg][3]
+          Y2 = track[curSeg][4]
+          Z2 = track[curSeg][5]
+          camposX = oX = (cx = X = X1 + (X2 - X1) * dPos)
+          camposY = oY = (cy = Y = Y1 + (Y2 - Y1) * dPos) - 4
+          camposZ = oZ = (cz = Z = Z1 + (Z2 - Z1) * dPos)
+          rotHoming = 2 / dSpeed
+
+          d = Math.hypot(X2-X1, Y2-Y1, Z2-Z1) + .00001
+          v1 = Math.acos((Y2-Y1) / d) - Math.PI/2
+          v2 = ptv
+          camPt = Pt = (ptv += (v1 - v2) / rotHoming / 4) -.4
+
+          v1 = -Math.atan2(X2-X1,Z2-Z1)
+          v2 = ywv
+          if(Math.abs(v1-v2) > Math.PI){
+            if(v1 < v2){
+              v2 = ywv -= Math.PI*2
+            }else{
+              v2 = ywv += Math.PI*2
+            }
+          }
+          camYw = Yw = ywv += (v1 - v2) / rotHoming
+        }else{
+          X1 = track[curSeg][3]
+          Y1 = track[curSeg][4]
+          Z1 = track[curSeg][5]
+          X2 = track[curSeg][0]
+          Y2 = track[curSeg][1]
+          Z2 = track[curSeg][2]
+          camposX = oX = (cx = X = X1 + (X2 - X1) * (1-dPos))
+          camposY = oY = (cy = Y = Y1 + (Y2 - Y1) * (1-dPos)) - 4
+          camposZ = oZ = (cz = Z = Z1 + (Z2 - Z1) * (1-dPos))
+          
+          rotHoming = 1 / dSpeed
+
+          d = Math.hypot(X2-X1, Y2-Y1, Z2-Z1) + .00001
+          v1 = Math.acos((Y1-Y2) / d) - Math.PI/2
+          v2 = ptv
+          camPt = Pt = (ptv -= (v1 - v2) / rotHoming / 4) -.4
+
+          v1 = -Math.atan2(X1-X2,Z1-Z2)
+          v2 = ywv
+          if(Math.abs(v1-v2) > Math.PI){
+            if(v1 < v2){
+              v2 = ywv -= Math.PI*2
+            }else{
+              v2 = ywv += Math.PI*2
+            }
+          }
+          camYw = Yw = (ywv -= (v1 - v2) / rotHoming)
+        }
+        
+        showCentris = false
+        trackWidth = iTrackv/1.5
+        track.map((v, i) => {
+          if(i){
+            alpha = .75/(1+(Math.abs(i-curSeg)*iTrackv)**8/99999999999999999)
+            if(alpha > .001){
+              l1 = i-1
+              l2 = i
+              
+              ax = ay = az = 0
+              
+              ax += X1a = track[l1][0]
+              ay += Y1a = track[l1][1]
+              az += Z1a = track[l1][2]
+              ax += X2a = track[l1][3]
+              ay += Y2a = track[l1][4]
+              az += Z2a = track[l1][5]
+              
+              ax += X1b = track[l2][0]
+              ay += Y1b = track[l2][1]
+              az += Z1b = track[l2][2]
+              ax += X2b = track[l2][3]
+              ay += Y2b = track[l2][4]
+              az += Z2b = track[l2][5]
+              
+              X = ax /= 4
+              Y = ay /= 4
+              Z = az /= 4
+              R(Rl,Pt,Yw,1)
+              Z += ofz
+              l = Q()
+              s = Math.min(1e4, 2e3/Z)
+              s2 = Math.min(1e4, 2e3/camD)
+              //x('drawImage', burstz[(t*20 + i|0)%4], l[0]-s/2, l[1]-s/2,s,s,  l[2]-s2/2,l[3]-s2/2,s2,s2)
+              x('globalAlpha', alpha*2)
+              //pic = track[l2][8]%2 ? starz[4] : burstz[3]
+              pic = track[l2][8]%2 ? burstz[0] : burstz[3]
+              x('drawImage', pic, l[0]-s/2/1.05, l[1]-s/2/1.05,s,s,  l[2]-s2/2/1.05,l[3]-s2/2/1.05,s2,s2)
+              
+              
+              ax1 = (X2a+X1a) / 2
+              ay1 = (Y2a+Y1a) / 2
+              az1 = (Z2a+Z1a) / 2
+              
+              ax2 = (X2b+X1b) / 2
+              ay2 = (Y2b+Y1b) / 2
+              az2 = (Z2b+Z1b) / 2
+              
+              p1 = Math.atan2(X2a-X1a, Z2a-Z1a) + Math.PI/2
+              p2 = Math.atan2(X2b-X1b, Z2b-Z1b) + Math.PI/2
+              if(Math.abs(p2-p1) > Math.PI){
+                if(p2 < p1){
+                  p1 -= Math.PI*2
+                }else{
+                  p2 -= Math.PI*2
+                }
+              }
+              
+              a = []
+              x('beginPath')
+              X = ax1 + S(p1) * trackWidth
+              Y = ay1
+              Z = az1 + C(p1) * trackWidth
+              a = [...a, [X,Y,Z]]
+              X = ax1 - S(p1) * trackWidth
+              Y = ay1
+              Z = az1 - C(p1) * trackWidth
+              a = [...a, [X,Y,Z]]
+              X = ax2 - S(p2) * trackWidth
+              Y = ay2
+              Z = az2 - C(p2) * trackWidth
+              a = [...a, [X,Y,Z]]
+              X = ax2 + S(p2) * trackWidth
+              Y = ay2
+              Z = az2 + C(p2) * trackWidth
+              a = [...a, [X,Y,Z]]
+              subV(a, 10)
+              col1 = `hsla(${t*50},99%,100%,${.85})`
+              col2 = ''//`hsla(${t*50+30},99%,100%,${1/3})`
+              stroke(col1, col2, 6, true, alpha)
+            }
+          }
+          x('globalAlpha', 1)
+          if(showCentris){
+            x('beginPath')
+            X = v[0]
+            Y = v[1]
+            Z = v[2]
+            R(Rl,Pt,Yw,1)
+            Z += ofz
+            x('lineTo', ...Q())
+            X = v[3]
+            Y = v[4]
+            Z = v[5]
+            R(Rl,Pt,Yw,1)
+            Z += ofz
+            x('lineTo', ...Q())
+            col1 = '#f008'
+            col2 = ''
+            stroke(col1, col2, 5, true)
+          }
+        })
+        
+        /*
+        X = cx
+        Y = cy
+        Z = cz
+        R(Rl,Pt,Yw,1)
+        Z += ofz
+        //camZ += ofz
+        l = Q()
+        s = Math.min(1e4, 3e3/Z)
+        s2 = Math.min(1e4, 3e3/camD)
+        x('drawImage', burstz[(t*60|0)%4], l[0]-s/2, l[1]-s/2,s,s,  l[2]-s2/2,l[3]-s2/2,s2,s2)
+        */
 
         if(showOutput) {
           if(showPreview) {
@@ -2049,40 +2354,132 @@
             prevScale = 1
             x_.strokeStyle = '#40f'
             x_.lineWidth = 6*prevScale
-            x_.strokeRect(c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale)
-            x_.drawImage(tempBuffer, c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale)
-            x_.font = (fs=26*prevScale) + 'px monospace'
-            x_.fillStyle = '#fffa'
-            x_.strokeStyle = '#000a'
-            x_.textAlign = 'left'
-            x_.strokeText('[h] to toggle view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs + 40*prevScale)
-            x_.strokeText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
-            x_.fillText('[h] to toggle view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs + 40*prevScale)
-            x_.fillText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
+            x_.strokeRect(c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale | 0)
+            x_.drawImage(tempBuffer, c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale | 0)
           }
         }else{
           if(showPreview){
             prevScale = 1
             x_.strokeStyle = '#40f'
             x_.lineWidth = 6*prevScale
-            x_.strokeRect(c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale)
-            x_.drawImage(output, c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale)
-            x_.font = (fs=26*prevScale) + 'px monospace'
-            x_.fillStyle = '#fffa'
-            x_.strokeStyle = '#000a'
-            x_.textAlign = 'left'
-            x_.strokeText('[h] to toggle view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs + 40*prevScale)
-            x_.strokeText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
-            x_.fillText('[h] to toggle view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs + 40*prevScale)
-            x_.fillText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
+            x_.strokeRect(c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale | 0)
+            x_.drawImage(output, c.width - 410*prevScale, 10*prevScale, 400*prevScale, 400/outputAspectRatio*prevScale | 0)
           }
         }
-
+        if(showPreview){
+          x_.font = (fs=26*prevScale) + 'px monospace'
+          x_.fillStyle = '#fffa'
+          x_.strokeStyle = '#000a'
+          x_.textAlign = 'left'
+          x_.strokeText('[h] to toggle default/HDRI', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs * 2 + 40*prevScale)
+          x_.fillText('[h] to toggle default/HDRI', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs * 2 + 40*prevScale)
+          x_.strokeText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
+          x_.fillText('[f] toggle force-correct AR', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + 40*prevScale )
+          x_.strokeText('[r] to toggle render-view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs * 1+ 40*prevScale)
+          x_.fillText('[r] to toggle render-view', c.width - 400*prevScale, 400/outputAspectRatio*prevScale + fs * 1 + 40*prevScale)
+        }
+  
         t+=1/60
         requestAnimationFrame(Draw)
       }
-      Draw()
+
+
+      async function launch(){
+        url = location.href.split('url=')
+        if(url.length > 1){
+          url = url[1].split('&')[0]
+          if(url.toLowerCase().indexOf('.mp4') != -1 ||
+            url.toLowerCase().indexOf('.webm') != -1){
+            resType = 'video'
+            img = document.createElement('video')
+            loop = location.href.split('loop=')
+            if(loop.length > 1){
+              loop = loop[1].split('&')[0]
+              loop = loop == 'true'
+            }
+            playbackspeed = location.href.split('playbackspeed=')
+            if(playbackspeed.length > 1){
+              playbackspeed = playbackspeed[1].split('&')[0]
+            }else{
+              playbackspeed = 1
+            }
+            img.playbackRate = img.defaultPlaybackRate = +playbackspeed
+            autoplay = location.href.split('autoplay=')
+            await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
+            if(autoplay.length > 1){
+              autoplay = autoplay[1].split('&')[0]
+            }
+          }else{
+             resType = 'image'
+             img = new Image()
+             await fetch('https://srmcgann.github.io/skyboxes/HDRI/2.jpg').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
+          }
+        }else{
+          url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
+
+          resType = 'video'
+          img = document.createElement('video')
+          loop = location.href.split('loop=')
+          if(loop.length > 1){
+            loop = loop[1].split('&')[0]
+            loop = loop == 'true'
+          }
+          playbackspeed = location.href.split('playbackspeed=')
+          if(playbackspeed.length > 1){
+            playbackspeed = playbackspeed[1].split('&')[0]
+          }else{
+            playbackspeed = 1
+          }
+          img.playbackRate = img.defaultPlaybackRate = +playbackspeed
+          autoplay = location.href.split('autoplay=')
+          await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
+          if(autoplay.length > 1){
+            autoplay = autoplay[1].split('&')[0]
+          }
+        }
+
+
+        if(resType == 'video'){
+          img.muted = false
+          let button = document.querySelectorAll('#button')[0]
+          button.style.display='block'
+          button.onclick = () => {
+            img.play()
+            Draw()
+            playedOnce = true
+            loaded = true
+            button.style.display='none'
+
+            scriptblock = document.createElement('script')
+            scriptblock.setAttribute('type', 'importmap')
+            scriptblock.innerHTML = importMap
+            document.body.appendChild(scriptblock)
+
+            scriptblock = document.createElement('script')
+            scriptblock.setAttribute('type', 'module')
+            scriptblock.innerHTML = script
+            document.body.appendChild(scriptblock)
+
+
+          }
+        }else{
+          scriptblock = document.createElement('script')
+          scriptblock.setAttribute('type', 'importmap')
+          scriptblock.innerHTML = importMap
+          document.body.appendChild(scriptblock)
+
+          scriptblock = document.createElement('script')
+          scriptblock.setAttribute('type', 'module')
+          scriptblock.innerHTML = script
+          document.body.appendChild(scriptblock)
+          Draw()
+        }
+      }
       
+      launch()
     </script>
   </body>
 </html>
+
+FILE;
+file_put_contents('../HDRIv/index.html', $file);
