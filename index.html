@@ -41,6 +41,7 @@
   </head>
   <body>
     <div id="container"></div>
+    <canvas id=c></canvas>    
     <button id="button">play</button>    
     <script>
       importMap = `
@@ -81,7 +82,7 @@
           const container = document.getElementById( 'container' )
           camera = new THREE.PerspectiveCamera( 100, 16/9, .05, 1e6)
           scene = new THREE.Scene()
-          const geometry = new THREE.SphereGeometry( 1e4, 32, 120 )
+          const geometry = new THREE.SphereGeometry( 1e4, 16, 60 )
           geometry.scale( - 1, 1, 1 )
           var texture
           
@@ -157,8 +158,8 @@
           url = l[1].split('&')[0]
           init(url)
         }else{
-          //init('https://i.imgur.com/hBdxXm0.mp4')
-          init('https://srmcgann.github.io/skyboxes/HDRI/26.jpg')
+          init('https://i.imgur.com/hBdxXm0.mp4')
+          //init('https://srmcgann.github.io/skyboxes/HDRI/26.jpg')
         }
 
       `
@@ -169,17 +170,17 @@
       c.width = 1920
       c.height = 1080
 
-      buffer = document.createElement('canvas')
-      bctx = buffer.getContext('2d')
-      buffer.width = c.width
-      buffer.height = c.height
+      //buffer = document.createElement('canvas')
+      //bctx = buffer.getContext('2d')
+      //buffer.width = c.width
+      //buffer.height = c.height
       camMode = 'HDRI'
-      HDRIwidth = 1920
+      //HDRIwidth = 1920
 
       outputAspectRatio = 16/9
       output = document.createElement('canvas')
       octx = output.getContext('2d')
-      output.width = c.width
+      output.width = c.width/1
       output.height = output.width / outputAspectRatio
       showOutput = true    // HDRI view, for recording 
       showRender = false   // actual pipe to environment, for render eval etc
@@ -286,7 +287,7 @@
           keys = Array(256).fill(false)
 
           accel = .03
-          maxSpeed = .5
+          maxSpeed = 2
           doKeys = () => {
             keys.map((v, keyCode) => {
               if(v){
@@ -1087,40 +1088,74 @@
           }
 
           burst = new Image()
-          burst.src = `https://srmcgann.github.io/temp/burst.png`
+          url = "https://srmcgann.github.io/temp/burst.png"
+          await fetch(url).then(res=>res.blob()).then(data=> burst.src = URL.createObjectURL(data))
 
           //burst1 = new Image()
-          //burst1.src = `https://srmcgann.github.io/temp/burst1.png`
+          //burst1.src = "https://srmcgann.github.io/temp/burst1.png"
           burst2 = new Image()
-          burst2.src = `https://srmcgann.github.io/temp/burst2.png`
+          url = "https://srmcgann.github.io/temp/burst2.png"
+          await fetch(url).then(res=>res.blob()).then(data=> burst2.src = URL.createObjectURL(data))
           burst3 = new Image()
-          burst3.src = `https://srmcgann.github.io/temp/burst3.png`
+          url = "https://srmcgann.github.io/temp/burst3.png"
+          await fetch(url).then(res=>res.blob()).then(data=> burst3.src = URL.createObjectURL(data))
           burst4 = new Image()
-          burst4.src = `https://srmcgann.github.io/temp/burst4.png`
+          url = "https://srmcgann.github.io/temp/burst4.png"
+          await fetch(url).then(res=>res.blob()).then(data=> burst4.src = URL.createObjectURL(data))
           burstz = [ burst, burst2, burst3, burst4]
-          
+
           sphere1 = new Image()
-          sphere1.src = `https://srmcgann.github.io/temp13/sphere_colorful_1.png`
+          url = 'https://srmcgann.github.io/temp13/sphere_colorful_1.png'
+          await fetch(url).then(res=>res.blob()).then(data=> sphere1.src = URL.createObjectURL(data))
           sphere2 = new Image()
-          sphere2.src = `https://srmcgann.github.io/temp13/sphere_colorful_2.png`
+          url = 'https://srmcgann.github.io/temp13/sphere_colorful_2.png'
+          await fetch(url).then(res=>res.blob()).then(data=> sphere2.src = URL.createObjectURL(data))
           sphere3 = new Image()
-          sphere3.src = `https://srmcgann.github.io/temp13/sphere_colorful_3.png`
+          url = 'https://srmcgann.github.io/temp13/sphere_colorful_3.png'
+          await fetch(url).then(res=>res.blob()).then(data=> sphere3.src = URL.createObjectURL(data))
           sphere4 = new Image()
-          sphere4.src = `https://srmcgann.github.io/temp13/sphere_colorful_4.png`
+          url = 'https://srmcgann.github.io/temp13/sphere_colorful_4.png'
+          await fetch(url).then(res=>res.blob()).then(data=> sphere4.src = URL.createObjectURL(data))
           spherez = [ sphere1, sphere2, sphere3, sphere4 ]
 
-          starsLoaded = false, starImgs = [{loaded: false}]
-          starImgs = Array(9).fill().map((v,i) => {
-            let a = {img: new Image(), loaded: false}
-            a.img.onload = () => {
-              a.loaded = true
-              setTimeout(()=>{
-                if(starImgs.filter(v=>v.loaded).length == 9) starsLoaded = true
-              }, 0)
-            }
-            a.img.src = `https://srmcgann.github.io/stars/star${i+1}.png`
-            return a
-          })
+
+          star1= new Image()
+          url = "https://srmcgann.github.io/stars/star1.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star1.src = URL.createObjectURL(data))
+          
+          star2 = new Image()
+          url = "https://srmcgann.github.io/stars/star2.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star2.src = URL.createObjectURL(data))
+          
+          star3= new Image()
+          url = "https://srmcgann.github.io/stars/star3.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star3.src = URL.createObjectURL(data))
+          
+          star4 = new Image()
+          url = "https://srmcgann.github.io/stars/star4.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star4.src = URL.createObjectURL(data))
+
+          star5= new Image()
+          url = "https://srmcgann.github.io/stars/star5.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star5.src = URL.createObjectURL(data))
+
+          star6= new Image()
+          url = "https://srmcgann.github.io/stars/star6.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star6.src = URL.createObjectURL(data))
+
+          star7= new Image()
+          url = "https://srmcgann.github.io/stars/star7.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star7.src = URL.createObjectURL(data))
+
+          star8= new Image()
+          url = "https://srmcgann.github.io/stars/star8.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star8.src = URL.createObjectURL(data))
+
+          star9= new Image()
+          url = "https://srmcgann.github.io/stars/star9.png"
+          await fetch(url).then(res=>res.blob()).then(data=> star9.src = URL.createObjectURL(data))
+          
+          starz = [ star1, star2, star3, star4, star5, star6, star7, star8, star9 ]
 
           lineFaceI = (X1, Y1, Z1, X2, Y2, Z2, facet, autoFlipNormals=false, showNormals=false) => {
             let X_, Y_, Z_, d, m, l_,K,J,L,p
@@ -1951,10 +1986,10 @@
           //await fetch(url).then(res=>res.blob()).then(data=>bg.src = URL.createObjectURL(data))
           bg = img
           
-          /*
+          
           iTrackv = 3
-          trackTurnVel = .33
-          trackTurnDrag = 1.1
+          trackTurnVel = .05
+          trackTurnDrag = 1.075
           trackvThetaVel = 1.5
           vThetaDrag = 1.05
           trackDrag = 1.05
@@ -1997,7 +2032,7 @@
               track = [...track, [X2, Y2, Z2,  X, Y, Z, theta, vtheta, track[l][8]-1]]
             }
           }
-          tracklen = 150
+          tracklen = 75
           for(m=tracklen; m--;) layTrack()
             
           bounding = subDividedCube(5,0,0).map(v=>{
@@ -2007,7 +2042,7 @@
             return v
           })
           
-          dSpeed = .05
+          dSpeed = .2
           dPos = ywv = ptv = 0
           ofz = 8
           curSeg = track.length/2|0
@@ -2022,7 +2057,7 @@
             Y = (((i/cl|0)%rw)-rw/2 + .5)*sp
             Z = ((i/cl/rw|0)-br/2 + .5)*sp
             if(Rn()<1) env = [...env, [X,Y,Z]]
-          })*/
+          })
         }
 
         cls()
@@ -2060,21 +2095,21 @@
           //if(bgofx < 0) x_.drawImage(bg,bgofx+c.width,0,c.width,c.height)
         }
 
-        //if(bgofx > 0) octx.drawImage(bg,bgofx-output.width,0,output.width,output.height)
+        if(bgofx > 0) octx.drawImage(bg,bgofx-output.width,0,output.width,output.height)
         octx.drawImage(bg,bgofx,0,output.width,output.height)
-        //if(bgofx < 0) octx.drawImage(bg,bgofx+output.width,0,output.width,output.height)
+        if(bgofx < 0) octx.drawImage(bg,bgofx+output.width,0,output.width,output.height)
         
         
-        /*
+        
         lso = 1//.5+S(t*3)*2
         baseShp = []
-        subDividedCube(cubeLs + lso, 0, 0).map(v=>{
+        subDividedCube(cubeLs + lso, 1, 0).map(v=>{
           a = []
           ax = ay = az = ct = 0
           v.map(q=>{
-            X = q[0] *= 1.5
+            X = q[0] *= 1
             Y = q[1] *= .1
-            Z = q[2] *= 1.5
+            Z = q[2] *= 1
             //R(t*.5,t*.2,0)
             ax += q[0] = X
             ay += q[1] = Y
@@ -2107,7 +2142,7 @@
           })
           col1 = '#40f2'
           col2 = '#40f1'
-          stroke(col1, col2, 1, true)
+          stroke(col1, col2, .5, true)
         })
         
         env.map((env, idx) => {
@@ -2130,9 +2165,9 @@
               }), 2)
                 col1 = ''
               if(idx%2){
-                col2 = '#f002'
+                col2 = '#40f8'
               }else{
-                col2 = '#ff02'
+                col2 = '#0f88'
               }
               stroke(col1, col2, .5, false, alpha)
             })
@@ -2142,7 +2177,7 @@
         x('globalAlpha', 1)
         
         dSpeed /= trackDrag
-        //dSpeed = .1
+        dSpeed = .3
         dPos += dSpeed
         
         while(dPos >= 1){
@@ -2224,7 +2259,7 @@
         trackWidth = iTrackv/1.5
         track.map((v, i) => {
           if(i){
-            alpha = .75/(1+(Math.abs(i-curSeg)*iTrackv)**8/99999999999999999)
+            alpha = .75/(1+(Math.abs(i-curSeg)*iTrackv)**8/999999999999999)
             if(alpha > .001){
               l1 = i-1
               l2 = i
@@ -2299,7 +2334,7 @@
               subV(a, 2)
               col1 = `hsla(${t*50},99%,100%,${.85})`
               col2 = ''//`hsla(${t*50+30},99%,100%,${1/3})`
-              stroke(col1, col2, 6, true, alpha)
+              stroke(col1, col2, 3, true, alpha)
             }
           }
           x('globalAlpha', 1)
@@ -2319,11 +2354,11 @@
             x('lineTo', ...Q())
             col1 = '#f008'
             col2 = ''
-            stroke(col1, col2, 5, true)
+            stroke(col1, col2, 2.5, true)
           }
         })
         
-        */
+        
         
         /*
         X = cx
@@ -2409,6 +2444,7 @@
           }
         }else{
           url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
+          //url=`https://srmcgann.github.io/skyboxes2/videos/groupTheory.mp4`
 
           resType = 'video'
           img = document.createElement('video')
