@@ -1951,6 +1951,7 @@
           //await fetch(url).then(res=>res.blob()).then(data=>bg.src = URL.createObjectURL(data))
           bg = img
           
+          /*
           iTrackv = 3
           trackTurnVel = .33
           trackTurnDrag = 1.1
@@ -2021,7 +2022,7 @@
             Y = (((i/cl|0)%rw)-rw/2 + .5)*sp
             Z = ((i/cl/rw|0)-br/2 + .5)*sp
             if(Rn()<1) env = [...env, [X,Y,Z]]
-          })
+          })*/
         }
 
         cls()
@@ -2052,6 +2053,7 @@
           camYw = 0
         }
 
+        /*
         bgofx = c.width * (Yw/Math.PI/2)
         if(bgofx > 0) x_.drawImage(bg,bgofx-c.width,0,c.width,c.height)
         x_.drawImage(bg,bgofx,0,c.width,c.height)
@@ -2089,6 +2091,8 @@
         x('fillStyle', `#0002`)
         x_.fillRect(0,0,c.width,c.height)
         octx.fillRect(0,0,output.width,output.height)
+        
+        
         
         if(0) bounding.map(v => {
           x('beginPath')
@@ -2318,6 +2322,8 @@
           }
         })
         
+        */
+        
         /*
         X = cx
         Y = cy
@@ -2331,8 +2337,8 @@
         x('drawImage', burstz[(t*60|0)%4], l[0]-s/2, l[1]-s/2,s,s,  l[2]-s2/2,l[3]-s2/2,s2,s2)
         */
 
-        if(showOutput) {
-          if(showPreview) {
+        if(1||showOutput) {
+          if(0&&showPreview) {
             tbctx.drawImage(c,0,0,tempBuffer.width,tempBuffer.height)
           }
           x_.drawImage(output, 0, 0, c.width, c.height)
@@ -2401,8 +2407,7 @@
              await fetch('https://srmcgann.github.io/skyboxes/HDRI/2.jpg').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
           }
         }else{
-        
-          /*url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
+          url=`https://srmcgann.github.io/skyboxes/videos/starfield.mp4`
 
           resType = 'video'
           img = document.createElement('video')
@@ -2423,10 +2428,6 @@
           if(autoplay.length > 1){
             autoplay = autoplay[1].split('&')[0]
           }
-          */
-         resType = 'image'
-         img = new Image()
-         await fetch('https://srmcgann.github.io/skyboxes2/HDRI/stars.jpg').then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
         }
 
 
