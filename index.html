@@ -245,7 +245,6 @@ $file = <<<'FILE'
           keyTimer = 0
           keyTimerInterval = .25
           window.onkeydown = e => {
-            console.log(e)
             if(keyTimer <= t){
               keyTimer = t + keyTimerInterval
               if(e.keyCode == 72) {
@@ -291,7 +290,7 @@ $file = <<<'FILE'
           if(location.href.split('res=').length>1){
             cscl = +location.href.split('res=')[1].split('&')[0]
           }else{
-            cscl = 2
+            cscl = 1
           }
 
           c.width = 1920/	cscl
@@ -2010,7 +2009,7 @@ $file = <<<'FILE'
               track = [...track, [X2, Y2, Z2,  X, Y, Z, theta, vtheta, track[l][8]-1]]
             }
           }
-          tracklen = 150
+          tracklen = 50
           for(m=tracklen; m--;) layTrack()
             
           bounding = subDividedCube(5,0,0).map(v=>{
