@@ -214,11 +214,11 @@ $file = <<<'FILE'
         let d = showOutput ? 1/outputAspectRatio : .5625
         c.style.borderRadius = showOutput ? '0' : '10px'
         c.style.border = showOutput ? 'none' : '3px solid #fff3'
-        c.width = 1920
-        c.height = c.width * d
+        //c.width = 1920
+        //c.height = c.width * d
         c.style.display = 'none'
-        output.width = 1920
-        output.height = output.width * d
+        //output.width = 1920
+        //output.height = output.width * d
         if(b.clientHeight/b.clientWidth > d){
           c.style.width = `${(n=b.clientWidth) - margin*2}px`
           c.style.height = `${n*d - margin*2}px`
@@ -293,8 +293,8 @@ $file = <<<'FILE'
             cscl = 1
           }
 
-          c.width = 1920/	cscl
-          c.height = 1080 / cscl
+          //c.width = 1920/	cscl
+          //c.height = 1080 / cscl
 
           keys = Array(256).fill(false)
 
