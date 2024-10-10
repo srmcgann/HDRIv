@@ -167,15 +167,15 @@
       c = document.createElement('canvas')
       c.tabIndex = 0
       x_ = c.getContext('2d')
-      c.width = 1920
-      c.height = 1080
+      c.width = 1920/2
+      c.height = 1080/2
 
       buffer = document.createElement('canvas')
       bctx = buffer.getContext('2d')
       buffer.width = c.width
       buffer.height = c.height
       camMode = 'HDRI'
-      HDRIwidth = 1920
+      HDRIwidth = 1920/2
 
       outputAspectRatio = 16/9
       output = document.createElement('canvas')
@@ -240,26 +240,6 @@
 
           keyTimer = 0
           keyTimerInterval = .25
-          window.onkeydown = e => {
-            if(keyTimer <= t){
-              keyTimer = t + keyTimerInterval
-              if(e.keyCode == 72) {
-                showOutput = !showOutput
-                rsz()
-              }
-              if(e.keyCode == 80) {
-                showPreview = !showPreview
-              }
-              if(e.keyCode == 70) {
-                if(outputAspectRatio == 16/9){
-                  outputAspectRatio = 2
-                }else{
-                  outputAspectRatio = 16/9
-                }
-                rsz()
-              }
-            }
-          }
 
 
           let b = document.body
@@ -325,6 +305,7 @@
           }
 
           window.onkeydown = e => {
+
             keys[e.keyCode] = true
             if(keyTimer <= t){
               keyTimer = t + keyTimerInterval
@@ -1957,7 +1938,6 @@
           //bg = new Image()
           //url = 'https://srmcgann.github.io/skyboxes/HDRI/28.jpg'
           //await fetch(url).then(res=>res.blob()).then(data=>bg.src = URL.createObjectURL(data))
-          console.log(img)
           bg = img
           
           iTrackv = 3
