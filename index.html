@@ -2372,13 +2372,13 @@
               loop = loop[1].split('&')[0]
               loop = loop == 'true'
             }
-            playbackspeed = location.href.split('playbackspeed=')
+            playbackspeed = 1//location.href.split('playbackspeed=')
             if(playbackspeed.length > 1){
-              playbackspeed = playbackspeed[1].split('&')[0]
+              playbackspeed = 1//playbackspeed[1].split('&')[0]
             }else{
               playbackspeed = 1
             }
-            img.playbackRate = img.defaultPlaybackRate = +playbackspeed
+            img.playbackRate = 1//img.defaultPlaybackRate = +playbackspeed
             autoplay = location.href.split('autoplay=')
             await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
             if(autoplay.length > 1){
@@ -2399,13 +2399,13 @@
             loop = loop[1].split('&')[0]
             loop = loop == 'true'
           }
-          playbackspeed = location.href.split('playbackspeed=')
+          playbackspeed = 1//location.href.split('playbackspeed=')
           if(playbackspeed.length > 1){
-            playbackspeed = playbackspeed[1].split('&')[0]
+            playbackspeed = 1//playbackspeed[1].split('&')[0]
           }else{
             playbackspeed = 1
           }
-          img.playbackRate = img.defaultPlaybackRate = +playbackspeed
+          img.playbackRate = 1//img.defaultPlaybackRate = +playbackspeed
           autoplay = location.href.split('autoplay=')
           await fetch(`${url}`).then(res=>res.blob()).then(data=>img.src = URL.createObjectURL(data))
           if(autoplay.length > 1){
