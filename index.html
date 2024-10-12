@@ -94,7 +94,7 @@
               vid.muted = false
               vid.loop = true
               vid.crossOrigin = true
-              await fetch(url).then(res=>res.blob()).then(data=>vid.src = URL.createObjectURL(data))
+              //await fetch(url).then(res=>res.blob()).then(data=>vid.src = URL.createObjectURL(data))
               vid.src = url
               vid.play()
               texture = new THREE.VideoTexture( vid )
